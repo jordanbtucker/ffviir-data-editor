@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-a.2] - 2025-02-02
+
 ### Fixed
 
 - Files are now saved in the chosen location instead of in the original path.
@@ -125,6 +127,8 @@ and this project adheres to
 - Initial implementation
 
 [unreleased]: https://github.com/jordanbtucker/ff7r-data-editor/commits/main/
+[2.0.0-a.2]:
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v2.0.0-a.2
 [2.0.0-a.1]:
   https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v2.0.0-a.1
 [2.0.0-a.0]:
