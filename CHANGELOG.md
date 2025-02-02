@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-a.1] - 2025-02-02
+
 ### Fixed
 
 - Fixed "Do not know how to serialize a BigInt" error. (#15)
@@ -118,6 +120,8 @@ and this project adheres to
 - Initial implementation
 
 [unreleased]: https://github.com/jordanbtucker/ff7r-data-editor/commits/main/
+[2.0.0-a.1]:
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v2.0.0-a.1
 [2.0.0-a.0]:
   https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v2.0.0-a.0
 [1.0.0-b.8]:
