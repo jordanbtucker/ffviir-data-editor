@@ -5,7 +5,7 @@ const {app, BrowserWindow, dialog, ipcMain, Menu, shell} = require('electron')
 const {default: Conf} = require('conf')
 const Papa = require('papaparse')
 const pkg = require('../package.json')
-const UPackage = require('../lib/upackage')
+const {UPackage} = require('../lib/upackage')
 const {PropertyType} = require('../lib/uexport')
 
 const UPACKAGE_OPEN_DIALOG_DEFAULT_PATH_ID = 'upackageOpenDialogDefaultPath'
@@ -186,8 +186,8 @@ async function upackageSaved(entries) {
             const elements = entry[prop.name]
             for (let j = 0; j < elements.length; j++) {
               if (elements[j] != null) {
-                uexp.pos = uexp.offsets[i][prop.name]
-                writePropertyArrayElement(elements[j], j, prop.type, uexp)
+                uexp.pos = uexp.offsets[i][prop.name][j]
+                writePropertyValue(elements[j], prop.type, uexp)
               }
             }
           } else {
@@ -205,12 +205,11 @@ async function upackageSaved(entries) {
 
     const {canceled, filePath} = await dialog.showSaveDialog({
       defaultPath,
-      filters: [{name: 'UExport files', extensions: ['uexp']}],
+      filters: [{name: 'UAsset files', extensions: ['uasset']}],
     })
 
     if (!canceled) {
-      uexp.filename = filePath
-      await uexp.write()
+      await uexp.write(filePath)
       conf.set(UPACKAGE_SAVE_DIALOG_DEFAULT_PATH_ID, dirname(filePath))
       mainWindow.send('upackage-saved', filePath)
     }
@@ -379,8 +378,10 @@ function validateProperty(
   switch (type) {
     case PropertyType.BOOLEAN:
     case PropertyType.BYTE:
-    case PropertyType.BOOLEAN_BYTE:
+    case PropertyType.INT8:
     case PropertyType.UINT16:
+    case PropertyType.INT16:
+    case PropertyType.UINT32:
     case PropertyType.INT32:
     case PropertyType.FLOAT:
       textFormulaMatch = textFormulaRegExp.exec(value)
@@ -398,19 +399,33 @@ function validateProperty(
 
       return number
 
-    case PropertyType.STRING:
-      if (value !== originalValue) {
-        throw new Error(
-          `Unsupported string modification for field ${field} in ${csvBasename} on line ${lineNumber}`,
+    case PropertyType.INT64:
+      try {
+        textFormulaMatch = textFormulaRegExp.exec(value)
+        if (textFormulaMatch != null) {
+          number = BigInt(textFormulaMatch[1])
+        } else {
+          number = BigInt(value)
+        }
+      } catch (err) {
+        throw new TypeError(
+          `Invalid value for field ${field} in ${csvBasename} on line ${lineNumber}. Expected a number, got '${value}'`,
         )
       }
 
-      return value
+      if (isNaN(number)) {
+        throw new TypeError(
+          `Invalid value for field ${field} in ${csvBasename} on line ${lineNumber}. Expected a number, got '${value}'`,
+        )
+      }
 
+      return number
+
+    case PropertyType.STRING:
     case PropertyType.NAME:
-      if (!names.includes(value)) {
-        throw new RangeError(
-          `Invalid name '${value}' for field ${field} in ${csvBasename} on line ${lineNumber}. The name does not exist in ${uassetBasename}`,
+      if (value !== originalValue) {
+        throw new Error(
+          `Unsupported string modification for field ${field} in ${csvBasename} on line ${lineNumber}`,
         )
       }
 
@@ -543,16 +558,8 @@ function writePropertyValue(value, type, file) {
   let number
   switch (type) {
     case PropertyType.BOOLEAN:
-    case PropertyType.INT32:
-      number = Number(value)
-      if (isNaN(number)) {
-        throw new Error('Value must be a number')
-      }
-
-      file.writeInt32(number)
-      break
     case PropertyType.BYTE:
-    case PropertyType.BOOLEAN_BYTE:
+    case PropertyType.INT8:
       number = Number(value)
       if (isNaN(number)) {
         throw new Error('Value must be a number')
@@ -566,55 +573,23 @@ function writePropertyValue(value, type, file) {
         throw new Error('Value must be a number')
       }
 
+      file.writeUint16(number)
+      break
+    case PropertyType.INT16:
+      number = Number(value)
+      if (isNaN(number)) {
+        throw new Error('Value must be a number')
+      }
+
       file.writeInt16(number)
       break
-    case PropertyType.FLOAT:
+    case PropertyType.UINT32:
       number = Number(value)
       if (isNaN(number)) {
         throw new Error('Value must be a number')
       }
 
-      file.writeFloat(number)
-      break
-    case PropertyType.NAME:
-      file.writeFName(value)
-      break
-    default:
-      throw new Error(`Unsupported property type ${type}`)
-  }
-}
-
-/**
- *
- * @param {number | string | boolean} value
- * @param {number} index
- * @param {number} type
- * @param {import('../lib/uexport')} file
- */
-function writePropertyArrayElement(value, index, type, file) {
-  file.pos += 4
-
-  let number
-  switch (type) {
-    case PropertyType.BOOLEAN:
-    case PropertyType.BYTE:
-    case PropertyType.BOOLEAN_BYTE:
-      number = Number(value)
-      if (isNaN(number)) {
-        throw new Error('Value must be a number')
-      }
-
-      file.pos += index
-      file.writeByte(number)
-      break
-    case PropertyType.UINT16:
-      number = Number(value)
-      if (isNaN(number)) {
-        throw new Error('Value must be a number')
-      }
-
-      file.pos += index * 2
-      file.writeInt16(number)
+      file.writeUint32(number)
       break
     case PropertyType.INT32:
       number = Number(value)
@@ -622,8 +597,15 @@ function writePropertyArrayElement(value, index, type, file) {
         throw new Error('Value must be a number')
       }
 
-      file.pos += index * 4
       file.writeInt32(number)
+      break
+    case PropertyType.INT64:
+      number = Number(value)
+      if (isNaN(number)) {
+        throw new Error('Value must be a number')
+      }
+
+      file.writeInt64(number)
       break
     case PropertyType.FLOAT:
       number = Number(value)
@@ -631,13 +613,11 @@ function writePropertyArrayElement(value, index, type, file) {
         throw new Error('Value must be a number')
       }
 
-      file.pos += index * 4
       file.writeFloat(number)
       break
-    case PropertyType.NAME:
-      file.pos += index * 8
-      file.writeFName(value)
-      break
+    // case PropertyType.NAME:
+    //   file.writeFName(value)
+    //   break
     default:
       throw new Error(`Unsupported property type ${type}`)
   }

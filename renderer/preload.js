@@ -8,7 +8,7 @@ const pkg = require('../package.json')
  * @typedef {{$tag: string} & Record<string, string | number | string[] | number[]>} SparseEntry
  */
 
-/** @type {import('../lib/upackage').IUPackage} */
+/** @type {import('../lib/upackage').UPackage} */
 let upackage
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -193,9 +193,12 @@ function loadProperty(prop, value, originalValue, element, parent) {
   switch (prop.type) {
     case PropertyType.BOOLEAN:
     case PropertyType.BYTE:
-    case PropertyType.BOOLEAN_BYTE:
+    case PropertyType.INT8:
     case PropertyType.UINT16:
+    case PropertyType.INT16:
+    case PropertyType.UINT32:
     case PropertyType.INT32:
+    case PropertyType.INT64:
     case PropertyType.FLOAT:
       element.innerText = String(value)
       element.contentEditable = 'true'
@@ -248,71 +251,6 @@ function loadProperty(prop, value, originalValue, element, parent) {
       }
 
       element.dataset.value = value
-      element.tabIndex = 0
-
-      element.addEventListener('focus', () => {
-        const showTxtValues = document
-          .getElementById('entries')
-          .classList.contains('txt-values')
-
-        const select = document.createElement('select')
-
-        for (const name of upackage.uasset.names) {
-          const option = document.createElement('option')
-          option.value = name
-
-          if (txtRes[name] != null) {
-            if (showTxtValues) {
-              option.label = txtRes[name]
-              option.title = name
-            } else {
-              option.label = name
-              option.title = txtRes[name]
-            }
-          } else {
-            option.label = name
-          }
-
-          select.appendChild(option)
-        }
-
-        select.value = element.dataset.value
-
-        select.addEventListener('blur', () => {
-          const selectedValue = select.value
-
-          if (selectedValue !== originalValue) {
-            element.dataset.isDirty = ''
-          } else {
-            delete element.dataset.isDirty
-          }
-
-          if (txtRes[selectedValue] != null) {
-            element.replaceChildren()
-
-            const txtID = document.createElement('span')
-            txtID.classList.add('txt-id')
-            txtID.innerText = selectedValue
-            txtID.title = txtRes[selectedValue]
-            element.appendChild(txtID)
-
-            const txtValue = document.createElement('span')
-            txtValue.classList.add('txt-value')
-            txtValue.innerText = txtRes[selectedValue]
-            txtValue.title = selectedValue
-            element.appendChild(txtValue)
-          } else {
-            element.innerText = selectedValue
-          }
-
-          element.dataset.value = selectedValue
-          element.tabIndex = 0
-        })
-
-        element.replaceChildren(select)
-        element.tabIndex = -1
-        select.focus()
-      })
       break
 
     default:
@@ -329,8 +267,11 @@ function getPropertyRange(type) {
   let max
   switch (type) {
     case PropertyType.BOOLEAN:
+      min = 0
+      max = 1
+      break
     case PropertyType.BYTE:
-    case PropertyType.BOOLEAN_BYTE:
+    case PropertyType.INT8:
       min = 0
       max = 0xff
       break
@@ -338,9 +279,21 @@ function getPropertyRange(type) {
       min = 0
       max = 0xffff
       break
+    case PropertyType.INT16:
+      min = -(2 ** 15)
+      max = 2 ** 15 - 1
+      break
+    case PropertyType.UINT32:
+      min = 0
+      max = 0xffffffff
+      break
     case PropertyType.INT32:
       min = -(2 ** 31)
       max = 2 ** 31 - 1
+      break
+    case PropertyType.INT64:
+      min = -(2n ** 63n)
+      max = 2n ** 63n - 1n
       break
     case PropertyType.FLOAT:
       min = Number.MIN_VALUE
@@ -367,8 +320,10 @@ function validateProperty(type, element, originalValue) {
     switch (type) {
       case PropertyType.BOOLEAN:
       case PropertyType.BYTE:
-      case PropertyType.BOOLEAN_BYTE:
+      case PropertyType.INT8:
       case PropertyType.UINT16:
+      case PropertyType.INT16:
+      case PropertyType.UINT32:
       case PropertyType.INT32:
       case PropertyType.FLOAT:
         number = Number(element.innerText)
@@ -376,6 +331,22 @@ function validateProperty(type, element, originalValue) {
           element.classList.add('invalid')
           element.title = 'Value must be a number'
         } else if (number < min || number > max) {
+          element.classList.add('invalid')
+          element.title = `Value must be between ${min.toLocaleString()} and ${max.toLocaleString()}`
+        } else {
+          element.classList.remove('invalid')
+          element.removeAttribute('title')
+        }
+        break
+      case PropertyType.INT64:
+        try {
+          number = BigInt(element.innerText)
+        } catch (err) {
+          element.classList.add('invalid')
+          element.title = 'Value must be a number'
+        }
+
+        if (number < min || number > max) {
           element.classList.add('invalid')
           element.title = `Value must be between ${min.toLocaleString()} and ${max.toLocaleString()}`
         } else {
@@ -421,11 +392,16 @@ function getEntries({dirtyOnly} = {dirtyOnly: true}) {
         switch (prop.type) {
           case PropertyType.BOOLEAN:
           case PropertyType.BYTE:
-          case PropertyType.BOOLEAN_BYTE:
+          case PropertyType.INT8:
           case PropertyType.UINT16:
+          case PropertyType.INT16:
+          case PropertyType.UINT32:
           case PropertyType.INT32:
           case PropertyType.FLOAT:
             value = Number(td.innerText)
+            break
+          case PropertyType.INT64:
+            value = BigInt(td.innerText)
             break
           case PropertyType.STRING:
             txtID = td.querySelector('.txt-id')
@@ -458,11 +434,16 @@ function getEntries({dirtyOnly} = {dirtyOnly: true}) {
             switch (prop.type) {
               case PropertyType.BOOLEAN:
               case PropertyType.BYTE:
-              case PropertyType.BOOLEAN_BYTE:
+              case PropertyType.INT8:
               case PropertyType.UINT16:
+              case PropertyType.INT16:
+              case PropertyType.UINT32:
               case PropertyType.INT32:
               case PropertyType.FLOAT:
-                element = Number(span.innerText)
+                value = Number(td.innerText)
+                break
+              case PropertyType.INT64:
+                value = BigInt(td.innerText)
                 break
               case PropertyType.STRING:
                 txtID = span.querySelector('.txt-id')

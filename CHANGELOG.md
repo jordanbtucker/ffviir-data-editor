@@ -8,6 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+### BREAKING CHANGES
+
+- Works exclusively with Final Fantasy VII Rebirth.
+- FName values cannot be changed.
+
+### Fixed
+
+- FName values are displayed correctly.
+
 ## [1.0.0-b.8] - 2022-01-17
 
 ### Added
