@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-a.0] - 2025-02-01
+
 ### BREAKING CHANGES
 
 - Works exclusively with Final Fantasy VII Rebirth.
@@ -110,27 +112,28 @@ and this project adheres to
 
 - Initial implementation
 
-[unreleased]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.8...HEAD
+[unreleased]: https://github.com/jordanbtucker/ff7r-data-editor/commits/main/
+[2.0.0-a.0]:
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v2.0.0-a.0
 [1.0.0-b.8]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.7...v1.0.0-b.8
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.8
 [1.0.0-b.7]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.6...v1.0.0-b.7
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.7
 [1.0.0-b.6]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.5...v1.0.0-b.6
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.6
 [1.0.0-b.5]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.4...v1.0.0-b.5
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.5
 [1.0.0-b.4]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.3...v1.0.0-b.4
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.4
 [1.0.0-b.3]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.2...v1.0.0-b.3
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.3
 [1.0.0-b.2]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.1...v1.0.0-b.2
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.2
 [1.0.0-b.1]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-b.0...v1.0.0-b.1
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.1
 [1.0.0-b.0]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-a.1...v1.0.0-b.0
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-b.0
 [1.0.0-a.1]:
-  https://github.com/jordanbtucker/ff7r-data-editor/compare/v1.0.0-a.0...v1.0.0-a.1
+  https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-a.1
 [1.0.0-a.0]:
   https://github.com/jordanbtucker/ff7r-data-editor/releases/tag/v1.0.0-a.0
