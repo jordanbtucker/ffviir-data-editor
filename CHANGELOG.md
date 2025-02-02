@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Files are now saved in the chosen location instead of in the original path.
+  (#16)
+
 ## [2.0.0-a.1] - 2025-02-02
 
 ### Fixed
