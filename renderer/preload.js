@@ -251,6 +251,7 @@ function loadProperty(prop, value, originalValue, element, parent) {
       }
 
       element.dataset.value = value
+      parent.classList.add('disabled')
       break
 
     default:
