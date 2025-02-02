@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed "Do not know how to serialize a BigInt" error. (#15)
+- FName values show as disabled since they cannot be changed.
+
 ## [2.0.0-a.0] - 2025-02-01
 
 ### BREAKING CHANGES

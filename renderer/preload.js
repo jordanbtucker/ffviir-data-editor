@@ -3,6 +3,7 @@ const {ipcRenderer} = require('electron')
 const {PropertyType} = require('../lib/uexport')
 const txtRes = require('../lib/text-resource.json')
 const pkg = require('../package.json')
+const {parse} = require('../lib/json')
 
 /**
  * @typedef {{$tag: string} & Record<string, string | number | string[] | number[]>} SparseEntry
@@ -67,7 +68,7 @@ ipcRenderer.on('upackage-opened', (event, json) => {
  */
 function loadUPackage(json) {
   try {
-    upackage = JSON.parse(json)
+    upackage = parse(json)
     loadEntries(upackage.uexp.entries)
     setTitle()
     document.getElementById('save-file-button').disabled = false

@@ -7,6 +7,7 @@ const Papa = require('papaparse')
 const pkg = require('../package.json')
 const {UPackage} = require('../lib/upackage')
 const {PropertyType} = require('../lib/uexport')
+const {stringify} = require('../lib/json')
 
 const UPACKAGE_OPEN_DIALOG_DEFAULT_PATH_ID = 'upackageOpenDialogDefaultPath'
 const UPACKAGE_SAVE_DIALOG_DEFAULT_PATH_ID = 'upackageSaveDialogDefaultPath'
@@ -151,7 +152,7 @@ async function openUPackage() {
     if (!canceled) {
       upackage = new UPackage(filePaths[0])
       await upackage.read()
-      mainWindow.webContents.send('upackage-opened', JSON.stringify(upackage))
+      mainWindow.webContents.send('upackage-opened', stringify(upackage))
       const menu = Menu.getApplicationMenu()
       menu.getMenuItemById('save').enabled = true
       menu.getMenuItemById('import').enabled = true
@@ -600,8 +601,9 @@ function writePropertyValue(value, type, file) {
       file.writeInt32(number)
       break
     case PropertyType.INT64:
-      number = Number(value)
-      if (isNaN(number)) {
+      try {
+        number = BigInt(value)
+      } catch (err) {
         throw new Error('Value must be a number')
       }
 
